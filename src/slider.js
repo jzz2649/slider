@@ -5,7 +5,7 @@
  * @description 拉杆
  */
 
-function Slider(options) {
+function Slider (options) {
   this.options = {
     ele: '.s-main',
     showColor: '#00bcd4',
@@ -13,202 +13,234 @@ function Slider(options) {
     hoverBgColor: 'rgba(189,189,189,.2)',
     hoverColor: 'rgba(0,188,212,.2)',
     value: 0,
-    callback: function(){}
+    step: 1,
+    max: 100,
+    callback: function () { }
   }
 
-  this.on = false;
-  this.ele;
+  this.isRun = false
+  this.ele
 
   for (var o in options) {
-    this.options[o] = options[o];
+    this.options[o] = options[o]
   }
 
   if (typeof this.options.ele === 'string') {
-    this.ele = document.querySelector(this.options.ele);
+    this.ele = document.querySelector(this.options.ele)
   } else {
-    this.ele = this.options.ele;
+    this.ele = this.options.ele
   }
 
-  this.value = this.options.value;
-  this.box = this.ele.getBoundingClientRect();
-  this.left = this.box.left;
-  this.width = this.box.width;
-  this.step = this.width/100;
-  this.position = this.options.value;
-  this.value = this.position;
+  this.box = this.ele.getBoundingClientRect()
+  this.left = this.box.left
+  this.width = this.box.width
+  this.ratio = 100 / this.options.max
+  this.space = this.options.step * this.ratio
+  this.position = this.options.value * this.ratio
+  this._value = this.options.value
 
-  this._init();
+  this._init()
 }
 
-Slider.prototype._init = function() {
-  var self = this;
-  var _bgColor = this.position;
+Slider.prototype._init = function () {
+  var self = this
 
-  var div = Slider.createEle('div', 'position: absolute;top:8px;left:0px;width:100%;height: 2px;-webkit-user-select:none;user-select: none;')
-  var span1 = this.span1 = Slider.createEle('span', 
-      'position:absolute;left:0;height:2px;width: '+this.position+'%;background:'+this.options.showColor+';-webkit-user-select:none;user-select:none;');
-  var span2 = this.span2 = Slider.createEle('span',
-      'position: absolute;right: 0; height: 2px; width: '+(100-this.position)+'%; background-color:'+this.options.bgColor+';-webkit-user-select:none; user-select: none;');
-  var span3 = this.span3= Slider.createEle('span', 
-      'position: absolute; width: 100%; height: 100%; transform: scale(1); transition: transform .1s linear 0s; background-color:'+this.options.hoverColor+'; border-radius: 50%;-webkit-user-select:none; user-select: none;');
-  var i_span = this.i_span = Slider.createEle('span', 'position:absolute;top:0;left:0;width:100%;height:100%;transition: transform 0.1s linear 0s;')
-  var i = this.i = Slider.createEle('i', 
-      'position: absolute;top: 0px; left: '+this.position+'%; margin-top: 1px; width: 12px; height: 12px; border-radius: 50%; transform: translate(-50%,-50%) scale(1); transition: transform .1s linear 0s; background-color: #00bcd4; cursor: pointer;-webkit-user-select:none; user-select: none;');
-  
-  Slider.cssText(this.ele, 'position: relative;height: 18px;-webkit-user-select:none;user-select: none;');
+  var box = Slider.createEle('div', 'position: absolute;top:8px;left:0px;width:100%;height: 2px;-webkit-user-select:none;user-select: none;')
+  var bar = this.bar = Slider.createEle('span', 'position:absolute;left:0;height:2px;width: ' + this.position + '%;background:' + this.options.showColor + ';-webkit-user-select:none;user-select:none;')
+  var barBg = this.barBg = Slider.createEle('span',
+      'position: absolute;right: 0; height: 2px; width: ' + (100 - this.position) + '%; background-color:' + this.options.bgColor + ';-webkit-user-select:none; user-select: none;')
+  var btnHover = this.btnHover = Slider.createEle('span', 'position: absolute; width: 100%; height: 100%; transform: scale(1); transition: transform .1s linear 0s; background-color:' + this.options.hoverColor + '; border-radius: 50%;-webkit-user-select:none; user-select: none;')
+  var _btnBox = this._btnBox = Slider.createEle('span', 'position:absolute;top:0;left:0;width:100%;height:100%;transition: transform 0.1s linear 0s;')
+  var btn = this.btn = Slider.createEle('i', 'position: absolute;top: 0px; left: ' + this.position + '%; margin-top: 1px; width: 12px; height: 12px; border-radius: 50%; transform: translate(-50%,-50%) scale(1); transition: transform .1s linear 0s; background-color: #00bcd4; cursor: pointer;-webkit-user-select:none; user-select: none;')
+  Slider.cssText(this.ele, 'position: relative;height: 18px;-webkit-user-select:none;user-select: none;')
 
   if (this.position === 0) {
-    this.i.style.background = this.options.bgColor;
-    this.span3.style.background = this.options.hoverBgColor;
+    this.btn.style.background = this.options.bgColor
+    this.btnHover.style.background = this.options.hoverBgColor
   }
-
-  this.options.callback(this.value);
 
   Object.defineProperty(this, 'watch', {
-    set: function() {
+    set: function () {
       if (this.position === 0) {
-        this.i.style.background = this.options.bgColor;
-        this.span3.style.background = this.options.hoverBgColor;
-        _bgColor = this.position;
-      }else {
-        if (!_bgColor) {
-          this.i.style.background = this.options.showColor;
-          this.span3.style.background = this.options.hoverColor;
-          _bgColor = this.position;
+        this.btn.style.background = this.options.bgColor
+        this.btnHover.style.background = this.options.hoverBgColor
+      } else {
+        if (this.position !== 0) {
+          this.btn.style.background = this.options.showColor
+          this.btnHover.style.background = this.options.hoverColor
         }
       }
-    }
+    },
+    get: function () {}
   })
 
-  i_span.appendChild(span3)
-  i.appendChild(i_span);
-  div.appendChild(span1);
-  div.appendChild(span2);
-  div.appendChild(i);
-  this.ele.appendChild(div);
+  Object.defineProperty(this, 'value', {
+    set: function (v) {
+      this.slider(v)
+    },
+    get: function () {}
+  })
 
-  Slider.on(this.ele, 'mouseenter', function(e){
-    self.span3.style.transform = 'scale(2)';
-  });
+  this.options.callback(this.options.value)
 
-  Slider.on(this.ele, 'mouseleave', function(e){
-    self.span3.style.transform = 'scale(1)';
-  });
+  _btnBox.appendChild(btnHover)
+  btn.appendChild(_btnBox)
+  box.appendChild(bar)
+  box.appendChild(barBg)
+  box.appendChild(btn)
+  this.ele.appendChild(box)
 
-  Slider.on(this.ele, 'mousedown touchstart', function(e) {
-    var clientX = e.touches?e.touches[0].clientX:e.clientX;
-    self.on = true;
-    self.box = self.ele.getBoundingClientRect();
-    self.left = self.box.left;
-    self.width = self.box.width;
-    self.step = self.width/100;
-    if(!e.touches) {
-      self.i_span.style.transform = 'scale(0.5)';
-    }
-    self.i.style.transform = 'translate(-50%, -50%) scale(1.5)';
-    self._slider(clientX);
-  });
+  Slider.on(this.ele, 'mouseenter', function (e) {
+    self.btnHover.style.transform = 'scale(2)'
+  })
 
-  Slider.on(window, 'mouseup touchend', function(e){
+  Slider.on(this.ele, 'mouseleave', function (e) {
+    self.btnHover.style.transform = 'scale(1)'
+  })
+
+  Slider.on(this.ele, 'mousedown touchstart', function (e) {
+    var clientX = e.touches ? e.touches[0].clientX : e.clientX
+    self.isRun = true
+    self.box = self.ele.getBoundingClientRect()
+    self.left = self.box.left
+    self.width = self.box.width
+
     if (!e.touches) {
-      self.span3.style.transform = 'scale(1)';
-      if (self.on) {
-        self.span3.style.transform = 'scale(2)';
-      }
-      self.i_span.style.transform = 'scale(1)';
-    }else {
-      self.span3.style.transform = 'scale(1)';
+      self._btnBox.style.transform = 'scale(0.5)'
     }
-    self.i.style.transform = 'translate(-50%, -50%) scale(1)';
-    self.on = false;
-  });
 
-  Slider.on(window, 'mousemove touchmove', function(e){
-    var clientX;
-    if(self.on){
-      clientX = e.touches?e.touches[0].clientX:e.clientX;
-      self._slider(clientX);
+    self.btn.style.transform = 'translate(-50%, -50%) scale(1.5)'
+    self._slider(clientX)
+  })
+
+  Slider.on(window, 'mouseup touchend', function (e) {
+    if (self.isRun) {
+      if (!e.touches) {
+        self.btnHover.style.transform = 'scale(1)'
+        self.btnHover.style.transform = 'scale(2)'
+        self._btnBox.style.transform = 'scale(1)'
+      } else {
+        self.btnHover.style.transform = 'scale(1)'
+      }
+
+      self.btn.style.transform = 'translate(-50%, -50%) scale(1)'
+      self.isRun = false
+    } else {
+      if (self.btnHover.style.transform === 'scale(2)') {
+        self.btnHover.style.transform = 'scale(1)'
+      }
+    }
+  })
+
+  Slider.on(window, 'mousemove touchmove', function (e) {
+    var clientX
+
+    if (self.isRun) {
+      clientX = e.touches ? e.touches[0].clientX : e.clientX
+      self._slider(clientX)
     }
   })
 }
 
-Slider.prototype._slider = function(clientX) {
-  var distance = Math.round((clientX - this.left)/this.step);
-  var range = Math.abs(distance - this.position);
-  var i = 0;
-  if (distance > this.position && distance <= 100) {
-    for (; i<range; i++) {
-      this.watch = this.value = this.position +=1;
-      this.i.style.left = this.position+'%';
-      this.span1.style.width = distance+'%';
-      this.span2.style.width = 100 - distance+'%';
-      this.options.callback(this.value);
+Slider.prototype._slider = function (clientX) {
+  var value = (clientX - this.left) * this.options.max / this.width
+  this.slider(value)
+}
+
+Slider.prototype.slider = function (value) {
+  var distance = value / this.options.max * 100
+  var range = Math.round(Math.abs((distance - this.position) / this.space))
+  var i = 0
+
+  if (range < 1) {
+    return
+  }
+
+  if (distance > this.position && this.position < 100) {
+    for (; i < range; i++) {
+      if (this.position >= 100) {
+        return
+      }
+
+      this._dom(Math.round(this.space * this.options.max))
     }
-  } else if (distance < this.position && distance >= 0) {
-    for (; i<range; i++) {
-      this.watch = this.value = this.position -= 1;
-      this.i.style.left = this.position+'%';
-      this.span1.style.width = distance+'%';
-      this.span2.style.width = 100 - distance+'%';
-      this.options.callback(this.value);
+  } else if (distance < this.position && this.position > 0) {
+    for (; i < range; i++) {
+      if (this.position <= 0) {
+        return
+      }
+      this._dom(-Math.round(this.space * this.options.max))
     }
   }
 }
 
-Slider.type = function(obj) {
-  return toString.call(obj);
+Slider.prototype._dom = function (slider) {
+  this.position = Math.floor(Math.round(this.position * this.options.max) + slider) / this.options.max
+  this.watch = this._value = Math.floor(this.position * this.options.max / 100)
+  this.btn.style.left = this.position + '%'
+  this.bar.style.width = this.position + '%'
+  this.barBg.style.width = 100 - this.position + '%'
+  this.options.callback(this._value)
 }
 
-Slider.isArray = function(array) {
-  if(Array.isArray){
-    return Array.isArray(array);
-  }else {
-    return Slider.type(array) === '[object Array]';
+Slider.type = function (obj) {
+  return toString.call(obj)
+}
+
+Slider.isArray = function (array) {
+  if (Array.isArray) {
+    return Array.isArray(array)
+  } else {
+    return Slider.type(array) === '[object Array]'
   }
 }
 
-Slider.isObject = function(obj) {
-  return Slider.type(obj) === '[object Object]';
+Slider.isObject = function (obj) {
+  return Slider.type(obj) === '[object Object]'
 }
 
-Slider.createEle = function(targetName, style) {
-  var ele = document.createElement(targetName);
+Slider.createEle = function (targetName, style) {
+  var ele = document.createElement(targetName)
+
   if (style) {
-    Slider.cssText(ele, style);
+    Slider.cssText(ele, style)
   }
-  return ele;
+
+  return ele
 }
 
-Slider.cssText = function(ele, style) {
-    var re = /-(\w)/;
-    var styles = style.split(';');
-    var len = styles.length;
-    var w, name , css, i = 0;
+Slider.cssText = function (ele, style) {
+  var re = /-(\w)/
+  var styles = style.split(';')
+  var len = styles.length
+  var w
+  var css
+  var i = 0
 
   if (ele.style.cssText !== undefined) {
-    ele.style.cssText = style;
+    ele.style.cssText = style
   } else {
-    for (; i<len; i++) {
-      if(!!styles[i]){
-        css = styles[i].split(':');
-        if (w = css[0].match(re)) {
-          ele.style[css[0].replace(w[0],w[1].toUpperCase()).trim()] = css[1].trim();
+    for (; i < len; i++) {
+      if (styles[i]) {
+        css = styles[i].split(':')
+        if ((w = css[0].match(re))) {
+          ele.style[css[0].replace(w[0], w[1].toUpperCase()).trim()] = css[1].trim()
         } else {
-          ele.style[css[0].trim()] = css[1].trim();
+          ele.style[css[0].trim()] = css[1].trim()
         }
       }
     }
   }
 }
 
-Slider.on = function(obj, events, callback) {
-  var event = events.split(' ');
-  var len = event.length;
-  var i = 0;
+Slider.on = function (obj, events, callback) {
+  var event = events.split(' ')
+  var len = event.length
+  var i = 0
 
-  for (; i<len; i++) {
-    obj.addEventListener(event[i], function(e){
-      callback&&callback(e);
+  for (; i < len; i++) {
+    obj.addEventListener(event[i], function (e) {
+      callback && callback(e)
     })
   }
 }

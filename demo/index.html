@@ -13,8 +13,12 @@
     .value {
       width: 50px;
       height: 20px;
-      background: #bdbdbd;
       margin: auto;
+      text-align: center;
+      background: #bdbdbd;
+    }
+    .input {
+      margin-top: 20px;
       text-align: center;
     }
   </style>
@@ -24,15 +28,28 @@
     <div class="s-main"></div>
   </div>
   <div class="value"></div>
-  <script src="slider.js"></script>
+  <div class="input">
+    <input type="text" placeholder="请输入">
+  </div>
+  <script src="../src/slider.js"></script>
   <script>
-    var v = document.querySelector('.value');
+    var v = document.querySelector('.value')
+    var input = document.querySelector('input')
+
     var s = new Slider({
-      value:20,
-      callback: function(value){
-        v.textContent = value;
+      value: 10,
+      step: 1,
+      callback: function (value) {
+        v.textContent = value
       }
-    });
+    })
+
+    input.addEventListener('input', function (e) {
+      var value = this.value.trim()
+      if (value) {
+        s.value = parseInt(value)
+      }
+    })
   </script>
 </body>
 </html>
