@@ -29,6 +29,8 @@ new Slider(options);
   value: 0,//滑杆的值
   step: 1,//设置滑杆的移动间距
   max: 100,//设置滑杆最大值
+  isHover: true,//是否启动hover效果
+  isBtn: true,//是否启动控制滑块
   callback: function(value){}//滑动过程中的回调函数，value为滑杆的值
 }
 ```
