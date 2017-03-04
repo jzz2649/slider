@@ -5,6 +5,8 @@
  * @description 拉杆
  */
 
+/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "Slider" }] */
+
 class Slider {
   constructor (options) {
     this.options = {
@@ -136,7 +138,7 @@ class Slider {
     var self = this
 
     if (this.options.isBtn) {
-      this.btn = Slider.createEle('i', 'position: absolute;top: 0px; left: ' + this.position + '%; margin-top: 1px; width: 12px; height: 12px; border-radius: 50%; transform: translate(-50%,-50%) scale(1); transition: transform .1s linear 0s; background-color: #00bcd4; cursor: pointer;-webkit-user-select:none; user-select: none;')
+      this.btn = Slider.createEle('i', 'position: absolute;top: 0px; left: ' + this.position + '%; margin-top: 1px; width: 12px; height: 12px; border-radius: 50%; transform: translate(-50%,-50%) scale(1); transition: transform .1s linear 0s; background-color: '+this.options.showColor+'; cursor: pointer;-webkit-user-select:none; user-select: none;')
       this._box.appendChild(this.btn)
 
       Slider.on(this.ele, 'mousedown touchstart', function (e) {
@@ -192,11 +194,11 @@ class Slider {
       this._btnBox.appendChild(this.btnHover)
       this.btn.appendChild(this._btnBox)
 
-      Slider.on(this.ele, 'mouseenter', function (e) {
+      Slider.on(this.ele, 'mouseenter', function () {
         self.btnHover.style.transform = 'scale(2)'
       })
 
-      Slider.on(this.ele, 'mouseleave', function (e) {
+      Slider.on(this.ele, 'mouseleave', function () {
         self.btnHover.style.transform = 'scale(1)'
       })
     }
