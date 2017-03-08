@@ -20,7 +20,8 @@ function Slider (options) {
     callback: function () { }
   }
 
-  this.isRun = false
+  this.isClick = false
+  this.isEnter = false
   this.ele
 
   for (var o in options) {
@@ -45,7 +46,7 @@ function Slider (options) {
 }
 
 Slider.prototype._init = function () {
-  this._box = Slider.createEle('div', 'position: absolute;top:8px;left:0px;width:100%;height: 2px;-webkit-user-select:none;user-select: none;')
+  this._box = Slider.createEle('div', 'position: absolute;top:8px;left:0px;width:100%;height: 2px;background: ' + this.options.bgColor + ';-webkit-user-select:none;user-select: none;')
   this.bar = Slider.createEle('span', 'position:absolute;left:0;height:2px;width: ' + this.position + '%;background:' + this.options.showColor + ';-webkit-user-select:none;user-select:none;')
   this.barBg = Slider.createEle('span',
       'position: absolute;right: 0; height: 2px; width: ' + (100 - this.position) + '%; background-color:' + this.options.bgColor + ';-webkit-user-select:none; user-select: none;')
@@ -73,12 +74,12 @@ Slider.prototype.bind = function () {
   var self = this
 
   if (this.options.isBtn) {
-    this.btn = Slider.createEle('i', 'position: absolute;top: 0px; left: ' + this.position + '%; margin-top: 1px; width: 12px; height: 12px; border-radius: 50%; transform: translate(-50%,-50%) scale(1); transition: transform .1s linear 0s; background-color: '+this.options.showColor+'; cursor: pointer;-webkit-user-select:none; user-select: none;')
+    this.btn = Slider.createEle('i', 'position: absolute;top: 0px; left: ' + this.position + '%; margin-top: 1px; width: 12px; height: 12px; border-radius: 50%; transform: translate(-50%,-50%) scale(1); transition: transform .1s linear 0s; background-color: ' + this.options.showColor + '; cursor: pointer;-webkit-user-select:none; user-select: none;')
     this._box.appendChild(this.btn)
 
     Slider.on(this.ele, 'mousedown touchstart', function (e) {
       var clientX = e.touches ? e.touches[0].clientX : e.clientX
-      self.isRun = true
+      self.isClick = true
       self.box = self.ele.getBoundingClientRect()
       self.left = self.box.left
       self.width = self.box.width
@@ -92,10 +93,10 @@ Slider.prototype.bind = function () {
     })
 
     Slider.on(window, 'mouseup touchend', function (e) {
-      if (self.isRun) {
+      if (self.isClick) {
         if (self.options.isHover) {
           if (!e.touches) {
-            self.btnHover.style.transform = 'scale(2)'
+            self.isEnter && (self.btnHover.style.transform = 'scale(2)')
             self._btnBox.style.transform = 'scale(1)'
           } else {
             self.btnHover.style.transform = 'scale(1)'
@@ -103,18 +104,14 @@ Slider.prototype.bind = function () {
         }
 
         self.btn.style.transform = 'translate(-50%, -50%) scale(1)'
-        self.isRun = false
-      } else if (self.options.isHover) {
-        if (self.btnHover.style.transform === 'scale(2)') {
-          self.btnHover.style.transform = 'scale(1)'
-        }
+        self.isClick = false
       }
     })
 
     Slider.on(window, 'mousemove touchmove', function (e) {
       var clientX
 
-      if (self.isRun) {
+      if (self.isClick) {
         clientX = e.touches ? e.touches[0].clientX : e.clientX
         self._slider(clientX)
       }
@@ -130,10 +127,12 @@ Slider.prototype.bind = function () {
     this.btn.appendChild(this._btnBox)
 
     Slider.on(this.ele, 'mouseenter', function (e) {
+      self.isEnter = true
       self.btnHover.style.transform = 'scale(2)'
     })
 
     Slider.on(this.ele, 'mouseleave', function (e) {
+      self.isEnter = false
       self.btnHover.style.transform = 'scale(1)'
     })
   }
@@ -149,11 +148,9 @@ Slider.prototype.bind = function () {
         if (this.position === 0) {
           this.btn.style.background = this.options.bgColor
           this.btnHover && (this.btnHover.style.background = this.options.hoverBgColor)
-        } else {
-          if (this.position !== 0) {
-            this.btn.style.background = this.options.showColor
-            this.btnHover && (this.btnHover.style.background = this.options.hoverColor)
-          }
+        } else if (this.position !== 0) {
+          this.btn.style.background = this.options.showColor
+          this.btnHover && (this.btnHover.style.background = this.options.hoverColor)
         }
       },
       get: function () {}
@@ -202,8 +199,23 @@ Slider.prototype._dom = function (slider) {
   this.options.callback(this._value)
 }
 
+Slider.prototype.setMax = function (v, state) {
+  if (v !== this.options.max) {
+    var status = this.value
+    this.value = this.value * v / this.options.max
+    this.options.max = v
+    this.ratio = 100 / this.options.max
+    this.space = this.options.step * this.ratio
+    this.value = 0
+    this.position = 0
+    if (state) {
+      this.value = status
+    }
+  }
+}
+
 Slider.type = function (obj) {
-  return toString.call(obj)
+  return Object.prototype.toString.call(obj)
 }
 
 Slider.isArray = function (array) {
@@ -229,27 +241,7 @@ Slider.createEle = function (targetName, style) {
 }
 
 Slider.cssText = function (ele, style) {
-  var re = /-(\w)/
-  var styles = style.split(';')
-  var len = styles.length
-  var w
-  var css
-  var i = 0
-
-  if (ele.style.cssText !== undefined) {
-    ele.style.cssText = style
-  } else {
-    for (; i < len; i++) {
-      if (styles[i]) {
-        css = styles[i].split(':')
-        if ((w = css[0].match(re))) {
-          ele.style[css[0].replace(w[0], w[1].toUpperCase()).trim()] = css[1].trim()
-        } else {
-          ele.style[css[0].trim()] = css[1].trim()
-        }
-      }
-    }
-  }
+  ele.style.cssText = style
 }
 
 Slider.on = function (obj, events, callback) {

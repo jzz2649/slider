@@ -23,7 +23,8 @@ class Slider {
       callback: function () { }
     }
 
-    this.isRun = false
+    this.isClick = false
+    this.isEnter = false
     this.ele
 
     for (var o in options) {
@@ -48,7 +49,7 @@ class Slider {
   }
 
   static type (obj) {
-    return toString.call(obj)
+    return Object.prototype.toString.call(obj)
   }
 
   static isArray (array) {
@@ -74,27 +75,7 @@ class Slider {
   }
 
   static cssText (ele, style) {
-    var re = /-(\w)/
-    var styles = style.split(';')
-    var len = styles.length
-    var w
-    var css
-    var i = 0
-
-    if (ele.style.cssText !== undefined) {
-      ele.style.cssText = style
-    } else {
-      for (; i < len; i++) {
-        if (styles[i]) {
-          css = styles[i].split(':')
-          if ((w = css[0].match(re))) {
-            ele.style[css[0].replace(w[0], w[1].toUpperCase()).trim()] = css[1].trim()
-          } else {
-            ele.style[css[0].trim()] = css[1].trim()
-          }
-        }
-      }
-    }
+    ele.style.cssText = style
   }
 
   static on (obj, events, callback) {
@@ -103,24 +84,24 @@ class Slider {
     var i = 0
 
     for (; i < len; i++) {
-      obj.addEventListener(event[i], function (e) {
+      obj.addEventListener(event[i], (e) => {
         callback && callback(e)
       })
     }
   }
 
   _init () {
-    this._box = Slider.createEle('div', 'position: absolute;top:8px;left:0px;width:100%;height: 2px;-webkit-user-select:none;user-select: none;')
+    this._box = Slider.createEle('div', 'position: absolute;top:8px;left:0px;width:100%;height: 2px;background: ' + this.options.bgColor + ';-webkit-user-select:none;user-select: none;')
     this.bar = Slider.createEle('span', 'position:absolute;left:0;height:2px;width: ' + this.position + '%;background:' + this.options.showColor + ';-webkit-user-select:none;user-select:none;')
     this.barBg = Slider.createEle('span',
         'position: absolute;right: 0; height: 2px; width: ' + (100 - this.position) + '%; background-color:' + this.options.bgColor + ';-webkit-user-select:none; user-select: none;')
     Slider.cssText(this.ele, 'position: relative;height: 18px;-webkit-user-select:none;user-select: none;')
 
     Object.defineProperty(this, 'value', {
-      set: function (v) {
+      set (v) {
         this.slider(v)
       },
-      get: function () {
+      get () {
         return this._value
       }
     })
@@ -135,53 +116,47 @@ class Slider {
   }
 
   bind () {
-    var self = this
-
     if (this.options.isBtn) {
-      this.btn = Slider.createEle('i', 'position: absolute;top: 0px; left: ' + this.position + '%; margin-top: 1px; width: 12px; height: 12px; border-radius: 50%; transform: translate(-50%,-50%) scale(1); transition: transform .1s linear 0s; background-color: '+this.options.showColor+'; cursor: pointer;-webkit-user-select:none; user-select: none;')
+      this.btn = Slider.createEle('i', 'position: absolute;top: 0px; left: ' + this.position + '%; margin-top: 1px; width: 12px; height: 12px; border-radius: 50%; transform: translate(-50%,-50%) scale(1); transition: transform .1s linear 0s; background-color: ' + this.options.showColor + '; cursor: pointer;-webkit-user-select:none; user-select: none;')
       this._box.appendChild(this.btn)
 
-      Slider.on(this.ele, 'mousedown touchstart', function (e) {
+      Slider.on(this.ele, 'mousedown touchstart', (e) => {
         var clientX = e.touches ? e.touches[0].clientX : e.clientX
-        self.isRun = true
-        self.box = self.ele.getBoundingClientRect()
-        self.left = self.box.left
-        self.width = self.box.width
+        this.isClick = true
+        this.box = this.ele.getBoundingClientRect()
+        this.left = this.box.left
+        this.width = this.box.width
 
-        if (!e.touches && self.options.isHover) {
-          self._btnBox.style.transform = 'scale(0.5)'
+        if (!e.touches && this.options.isHover) {
+          this._btnBox.style.transform = 'scale(0.5)'
         }
 
-        self.btn.style.transform = 'translate(-50%, -50%) scale(1.5)'
-        self._slider(clientX)
+        this.btn.style.transform = 'translate(-50%, -50%) scale(1.5)'
+        this._slider(clientX)
       })
 
-      Slider.on(window, 'mouseup touchend', function (e) {
-        if (self.isRun) {
-          if (self.options.isHover) {
+      Slider.on(window, 'mouseup touchend', (e) => {
+        if (this.isClick) {
+          if (this.options.isHover) {
             if (!e.touches) {
-              self.btnHover.style.transform = 'scale(2)'
-              self._btnBox.style.transform = 'scale(1)'
+              this.isEnter && (this.btnHover.style.transform = 'scale(2)')
+              this._btnBox.style.transform = 'scale(1)'
             } else {
-              self.btnHover.style.transform = 'scale(1)'
+              this.btnHover.style.transform = 'scale(1)'
             }
           }
 
-          self.btn.style.transform = 'translate(-50%, -50%) scale(1)'
-          self.isRun = false
-        } else if (self.options.isHover) {
-          if (self.btnHover.style.transform === 'scale(2)') {
-            self.btnHover.style.transform = 'scale(1)'
-          }
+          this.btn.style.transform = 'translate(-50%, -50%) scale(1)'
+          this.isClick = false
         }
       })
 
-      Slider.on(window, 'mousemove touchmove', function (e) {
+      Slider.on(window, 'mousemove touchmove', (e) => {
         var clientX
 
-        if (self.isRun) {
+        if (this.isClick) {
           clientX = e.touches ? e.touches[0].clientX : e.clientX
-          self._slider(clientX)
+          this._slider(clientX)
         }
       })
     } else {
@@ -194,12 +169,14 @@ class Slider {
       this._btnBox.appendChild(this.btnHover)
       this.btn.appendChild(this._btnBox)
 
-      Slider.on(this.ele, 'mouseenter', function () {
-        self.btnHover.style.transform = 'scale(2)'
+      Slider.on(this.ele, 'mouseenter', () => {
+        this.isEnter = true
+        this.btnHover.style.transform = 'scale(2)'
       })
 
-      Slider.on(this.ele, 'mouseleave', function () {
-        self.btnHover.style.transform = 'scale(1)'
+      Slider.on(this.ele, 'mouseleave', () => {
+        this.isEnter = false
+        this.btnHover.style.transform = 'scale(1)'
       })
     }
 
@@ -208,21 +185,6 @@ class Slider {
         this.btn.style.background = this.options.bgColor
         this.btnHover && (this.btnHover.style.background = this.options.hoverBgColor)
       }
-
-      Object.defineProperty(this, 'watch', {
-        set: function () {
-          if (this.position === 0) {
-            this.btn.style.background = this.options.bgColor
-            this.btnHover && (this.btnHover.style.background = this.options.hoverBgColor)
-          } else {
-            if (this.position !== 0) {
-              this.btn.style.background = this.options.showColor
-              this.btnHover && (this.btnHover.style.background = this.options.hoverColor)
-            }
-          }
-        },
-        get: function () {}
-      })
     }
   }
 
@@ -260,10 +222,36 @@ class Slider {
 
   _dom (slider) {
     this.position = Math.floor(Math.round(this.position * this.options.max) + slider) / this.options.max
-    this.watch = this._value = Math.floor(this.position * this.options.max / 100)
+    this._value = Math.floor(this.position * this.options.max / 100)
     this.btn && (this.btn.style.left = this.position + '%')
     this.bar.style.width = this.position + '%'
     this.barBg.style.width = 100 - this.position + '%'
+    this._watch()
     this.options.callback(this._value)
+  }
+
+  _watch () {
+    if (this.position === 0 && this.btn) {
+      this.btn.style.background = this.options.bgColor
+      this.btnHover && (this.btnHover.style.background = this.options.hoverBgColor)
+    } else if (this.position !== 0 && this.btn) {
+      this.btn.style.background = this.options.showColor
+      this.btnHover && (this.btnHover.style.background = this.options.hoverColor)
+    }
+  }
+
+  setMax (v, state) {
+    if (v !== this.options.max) {
+      var status = this.value
+      this.value = this.value * v / this.options.max
+      this.options.max = v
+      this.ratio = 100 / this.options.max
+      this.space = this.options.step * this.ratio
+      this.value = 0
+      this.position = 0
+      if (state) {
+        this.value = status
+      }
+    }
   }
 }
