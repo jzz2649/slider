@@ -142,19 +142,6 @@ Slider.prototype.bind = function () {
       this.btn.style.background = this.options.bgColor
       this.btnHover && (this.btnHover.style.background = this.options.hoverBgColor)
     }
-
-    Object.defineProperty(this, 'watch', {
-      set: function () {
-        if (this.position === 0) {
-          this.btn.style.background = this.options.bgColor
-          this.btnHover && (this.btnHover.style.background = this.options.hoverBgColor)
-        } else if (this.position !== 0) {
-          this.btn.style.background = this.options.showColor
-          this.btnHover && (this.btnHover.style.background = this.options.hoverColor)
-        }
-      },
-      get: function () {}
-    })
   }
 }
 
@@ -192,11 +179,22 @@ Slider.prototype.slider = function (value) {
 
 Slider.prototype._dom = function (slider) {
   this.position = Math.floor(Math.round(this.position * this.options.max) + slider) / this.options.max
-  this.watch = this._value = Math.floor(this.position * this.options.max / 100)
+  this._value = Math.floor(this.position * this.options.max / 100)
   this.btn && (this.btn.style.left = this.position + '%')
   this.bar.style.width = this.position + '%'
   this.barBg.style.width = 100 - this.position + '%'
+  this._watch()
   this.options.callback(this._value)
+}
+
+Slider.prototype._watch = function () {
+  if (this.position === 0) {
+    this.btn.style.background = this.options.bgColor
+    this.btnHover && (this.btnHover.style.background = this.options.hoverBgColor)
+  } else if (this.position !== 0) {
+    this.btn.style.background = this.options.showColor
+    this.btnHover && (this.btnHover.style.background = this.options.hoverColor)
+  }
 }
 
 Slider.prototype.setMax = function (v, state) {
