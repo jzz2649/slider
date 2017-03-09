@@ -221,20 +221,21 @@ class Slider {
   }
 
   _dom (slider) {
+    var prveState = this.value
     this.position = Math.floor(Math.round(this.position * this.options.max) + slider) / this.options.max
     this._value = Math.floor(this.position * this.options.max / 100)
     this.btn && (this.btn.style.left = this.position + '%')
     this.bar.style.width = this.position + '%'
     this.barBg.style.width = 100 - this.position + '%'
-    this._watch()
+    this.btn && this._watch(prveState)
     this.options.callback(this._value)
   }
 
-  _watch () {
-    if (this.position === 0 && this.btn) {
+  _watch (prveState) {
+    if (this.value === 0) {
       this.btn.style.background = this.options.bgColor
       this.btnHover && (this.btnHover.style.background = this.options.hoverBgColor)
-    } else if (this.position !== 0 && this.btn) {
+    } else if (prveState === 0) {
       this.btn.style.background = this.options.showColor
       this.btnHover && (this.btnHover.style.background = this.options.hoverColor)
     }
