@@ -248,7 +248,12 @@ Slider.on = function (obj, events, callback) {
   var len = event.length
   var i = 0
 
+  var isSupportTouch = 'ontouchstart' in document
+
   for (; i < len; i++) {
+    if (isSupportTouch && ~(event[i].indexOf('mouse'))) {
+      continue;
+    }
     obj.addEventListener(event[i], function (e) {
       callback && callback(e)
     })
