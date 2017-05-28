@@ -83,12 +83,7 @@ class Slider {
     var len = event.length
     var i = 0
 
-    var isSupportTouch = 'ontouchstart' in document
-
     for (; i < len; i++) {
-      if (isSupportTouch && ~(event[i].indexOf('mouse'))) {
-        continue;
-      }
       obj.addEventListener(event[i], (e) => {
         callback && callback(e)
       })
