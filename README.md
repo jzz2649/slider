@@ -31,6 +31,7 @@ new Slider({
   max: 100,//设置滑杆最大值
   isHover: true,//是否启动hover效果
   isBtn: true,//是否启动控制滑块
+  change: function(value) { },//放开鼠标或离开屏幕，如果值改变则触发
   callback: function(value){}//滑动过程中的回调函数，value为滑杆的值
 })
 ```

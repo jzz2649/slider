@@ -17,6 +17,7 @@ function Slider (options) {
     max: 100,
     isHover: true,
     isBtn: true,
+    change: function() { },
     callback: function () { }
   }
 
@@ -41,6 +42,7 @@ function Slider (options) {
   this.space = this.options.step * this.ratio
   this.position = this.options.value * this.ratio
   this._value = this.options.value
+  this.beforeChangeValue = this.options.value
 
   this._init()
 }
@@ -105,6 +107,10 @@ Slider.prototype.bind = function () {
 
         self.btn.style.transform = 'translate(-50%, -50%) scale(1)'
         self.isClick = false
+        if(self.value !== self.beforeChangeValue) {
+          self.beforeChangeValue = self.value
+          self._changeFn(self.value)
+        }
       }
     })
 
@@ -143,6 +149,10 @@ Slider.prototype.bind = function () {
       this.btnHover && (this.btnHover.style.background = this.options.hoverBgColor)
     }
   }
+}
+
+Slider.prototype._changeFn = function(value){
+  this.options.change && this.options.change(value)
 }
 
 Slider.prototype._slider = function (clientX) {

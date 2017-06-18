@@ -20,6 +20,7 @@ class Slider {
       max: 100,
       isHover: true,
       isBtn: true,
+      change: function() { },
       callback: function () { }
     }
 
@@ -44,6 +45,7 @@ class Slider {
     this.space = this.options.step * this.ratio
     this.position = this.options.value * this.ratio
     this._value = this.options.value
+    this.beforeChangeValue = this.options.value
 
     this._init()
   }
@@ -148,6 +150,10 @@ class Slider {
 
           this.btn.style.transform = 'translate(-50%, -50%) scale(1)'
           this.isClick = false
+          if(this.value !== this.beforeChangeValue) {
+          this.beforeChangeValue = this.value
+          this._changeFn(this.value)
+        }
         }
       })
 
@@ -186,6 +192,10 @@ class Slider {
         this.btnHover && (this.btnHover.style.background = this.options.hoverBgColor)
       }
     }
+  }
+
+  _changeFn (value){
+    this.options.change && this.options.change(value)
   }
 
   _slider (clientX) {
