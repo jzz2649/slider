@@ -1,6 +1,8 @@
 # slider
 仿google material-ui拉杆
 
+演示：[codepen](https://codepen.io/jzz7280/full/ypgXmQ)
+
 ##使用示意
 
 1. 引入js文件，例如
