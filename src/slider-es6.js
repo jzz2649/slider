@@ -9,19 +9,15 @@
 
 class Slider {
   static createEle (targetName, style = '') {
-    var ele = document.createElement(targetName)
+    const ele = document.createElement(targetName);
     ele.style.cssText = style;
     return ele;
   }
   static getClientRect (node) {
-    return node.getBoundingClientRect()
+    return node.getBoundingClientRect();
   }
-  static on (obj, events, callback) {
-    var event = events.split(' ');
-    var len = event.length;
-    for (let i = 0; i < len; i++) {
-      obj.addEventListener(event[i], callback);
-    }
+  static on (obj, type, callback) {
+    addEventListener.call(obj, type, callback);
   }
   constructor (node, option) {
     if (typeof node === 'undefined') {
@@ -104,7 +100,7 @@ class Slider {
     const barBg = Slider.createEle('span',
       styleTmp('100%', `${sliderH}px`, bgColor, `right: 0px;transform-origin:right;transform: scaleX(${(100-position)/100});`));
     const btn = Slider.createEle('i',
-        styleTmp(`${btnW}px`, `${btnH}px`, showColor, `top: ${top}px;left:0;cursor: pointer;margin-top: 1px;border-radius: ${radius};transform: translate(calc(${btnLeft}px - 50%),-50%) scale(1);transition: transform .1s linear 0s;`));
+        styleTmp(`${btnW}px`, `${btnH}px`, showColor, `top: ${top}px;left:0;cursor: pointer;margin-top: 1px;border-radius: ${radius};transform: translate(calc(${btnLeft}px - 50%),-50%) scale(1);`));
     const hover = Slider.createEle('span',
       styleTmp('100%','100%', 'transparent',`transform: scale(1); transition: transform .1s linear 0s; background-color: ${hoverColor}; border-radius: ${radius};`));
     const hoverScale = Slider.createEle('span',
@@ -124,26 +120,32 @@ class Slider {
     node.appendChild(body);
 
     const getEvent = e => e.touches ? e.touches[0] : e;
+    const hasTouch = 'ontouchstart' in window;
+    const ondown = hasTouch ? 'touchstart' : 'mousedown';
+    const onmove = hasTouch ? 'touchmove' : 'mousemove';
+    const onend = hasTouch ? 'touchend' : 'mouseup';
+    const onenter = hasTouch ? 'touchstart' : 'mouseenter';
+    const onleave = hasTouch ? 'touchend' : 'mouseleave';
 
     if (isBtn) box.appendChild(btn);
     if (isHover) {
       hover.appendChild(hoverScale);
       btn.appendChild(hover);
-      Slider.on(body, 'mouseenter', e => {
+      Slider.on(body, onenter, e => {
         this.state.isEnter = true;
         hoverScale.style.transform = 'scale(2)'
       })
 
-      Slider.on(body, 'mouseleave', e => {
+      Slider.on(body, onleave, e => {
         this.state.isEnter = false;
         hoverScale.style.transform = 'scale(1)'
       })
     }
     if (!slider) return;
     
-    Slider.on(body, 'mousedown touchstart', e => {
+    Slider.on(body, ondown, e => {
       const event = getEvent(e);
-      const clientX = e.clientX;
+      const clientX = event.clientX;
       const { left, width } = Slider.getClientRect(node);
       this.state.left = left;
       this.state.width = width;
@@ -151,7 +153,7 @@ class Slider {
       this.handleSlider(clientX);
     })
     let prevValue = this.value;
-    Slider.on(window, 'mouseup touchend', e => {
+    Slider.on(window, onend, e => {
       const { isClick } = this.state;
       if (isClick) {
         this.state.isClick = false;
@@ -162,11 +164,11 @@ class Slider {
       }
     })
 
-    Slider.on(window, 'mousemove touchmove', e => {
+    Slider.on(window, onmove, e => {
       const { isClick } = this.state;
       if (isClick) {
         const event = getEvent(e);
-        const clientX = e.clientX;
+        const clientX = event.clientX;
         this.handleSlider(clientX);
       }
     })
@@ -175,7 +177,7 @@ class Slider {
   handleSlider (clientX) {
     const { max } = this.option;
     const { left, width } = this.state;
-    var value = (clientX - left) * max / width;
+    const value = (clientX - left) * max / width;
     this.slider(value);
   }
 
