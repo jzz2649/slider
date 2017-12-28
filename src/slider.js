@@ -18,7 +18,6 @@ function Slider (node, option) {
     max: 100,
     bgColor: '#bdbdbd',
     showColor: '#00bcd4',
-    hoverBgColor: 'rgba(189,189,189,.2)',
     hoverColor: 'rgba(0,188,212,.2)',
     btnW: 12,
     btnH: 12,
