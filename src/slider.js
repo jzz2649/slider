@@ -80,7 +80,7 @@ Slider.prototype.createElement = function() {
     var position = this.state.position;
     var width = this.state.width;
     var node = this.el.node;
-    var btnLeft = (position * width / max) * ( max / 100);
+    var btnLeft = position;
     var _clickH = sliderH > clickH ? sliderH : clickH;
     var boxTop = (_clickH - sliderH) / 2;
     var top = (sliderH - 2) / 2;
@@ -91,7 +91,7 @@ Slider.prototype.createElement = function() {
     var barBg = Slider.createEle('span',
       styleTmp('100%', sliderH+'px', bgColor, 'right: 0px;transform-origin:right;transform: scaleX('+((100-position)/100)+');'));
     var btn = Slider.createEle('i',
-        styleTmp(btnW+'px', btnH+'px', showColor, 'top:'+top+'px;left:0;cursor: pointer;margin-top: 1px;border-radius: '+radius+';transform: translate(calc('+btnLeft+'px - 50%),-50%) scale(1);'));
+        styleTmp(btnW+'px', btnH+'px', showColor, 'top:'+top+'px;left:'+btnLeft+'%;cursor: pointer;margin-top: 1px;border-radius: '+radius+';transform: translate(-50%,-50%) scale(1);'));
     var hover = Slider.createEle('span',
       styleTmp('100%','100%', 'transparent','transform: scale(1); transition: transform .1s linear 0s; background-color: '+hoverColor+'; border-radius:'+radius+';'));
     var hoverScale = Slider.createEle('span',
@@ -223,8 +223,8 @@ Slider.prototype._dom = function() {
   var btn = this.el.btn;
   var bar = this.el.bar;
   var barBg = this.el.barBg;
-  var btnLeft = (position * width / max) * ( max / 100);
-  btn.style.transform = 'translate3D(calc('+ btnLeft+'px - 50%),-50%,0)';
+  var btnLeft = position;
+  btn.style.left = btnLeft+'%';
   bar.style.transform = 'scaleX('+(position/100)+')';
   barBg.style.transform = 'scaleX('+((100 - position)/100)+')';
   callback(this.value);
