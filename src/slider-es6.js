@@ -17,7 +17,8 @@ class Slider {
     return node.getBoundingClientRect();
   }
   static on (obj, type, callback) {
-    addEventListener.call(obj, type, callback);
+    const arr = type.split(' ');
+    arr.forEach(type=>addEventListener.call(obj, type, callback));
   }
   constructor (node, option) {
     if (typeof node === 'undefined') {
@@ -119,12 +120,11 @@ class Slider {
     node.appendChild(body);
 
     const getEvent = e => e.touches ? e.touches[0] : e;
-    const hasTouch = 'ontouchstart' in window;
-    const ondown = hasTouch ? 'touchstart' : 'mousedown';
-    const onmove = hasTouch ? 'touchmove' : 'mousemove';
-    const onend = hasTouch ? 'touchend' : 'mouseup';
-    const onenter = hasTouch ? 'touchstart' : 'mouseenter';
-    const onleave = hasTouch ? 'touchend' : 'mouseleave';
+    const ondown = 'touchstart mousedown';
+    const onmove = 'touchmove mousemove';
+    const onend = 'touchend mouseup';
+    const onenter = 'touchstart mouseenter';
+    const onleave = 'touchend mouseleave';
 
     if (isBtn) box.appendChild(btn);
     if (isHover) {

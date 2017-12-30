@@ -120,13 +120,14 @@ Slider.prototype.addEvent = function() {
   body.appendChild(box);
   node.appendChild(body);
 
-  var getEvent = e => e.touches ? e.touches[0] : e;
-  var hasTouch = 'ontouchstart' in window;
-  var ondown = hasTouch ? 'touchstart' : 'mousedown';
-  var onmove = hasTouch ? 'touchmove' : 'mousemove';
-  var onend = hasTouch ? 'touchend' : 'mouseup';
-  var onenter = hasTouch ? 'touchstart' : 'mouseenter';
-  var onleave = hasTouch ? 'touchend' : 'mouseleave';
+  var getEvent = function(e) {
+    return e.touches ? e.touches[0] : e;
+  }
+  var ondown = 'touchstart mousedown';
+  var onmove = 'touchmove mousemove';
+  var onend = 'touchend mouseup';
+  var onenter = 'touchstart mouseenter';
+  var onleave = 'touchend mouseleave';
 
   if (isBtn) box.appendChild(btn);
   if (isHover) {
@@ -264,5 +265,8 @@ Slider.getClientRect = function (node) {
 }
 
 Slider.on = function (obj, type, callback) {
-  addEventListener.call(obj, type, callback);
+  var arr = type.split(' ');
+  for(var i = 0; i < arr.length; i++){
+    obj.addEventListener(arr[i], callback);
+  }
 }
